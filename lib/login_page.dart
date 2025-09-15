@@ -68,12 +68,12 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _handleGoogleSignIn,
               icon: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.login, size: 24),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.login, size: 24),
               label: Text(_isLoading ? '로그인 중...' : 'Google로 로그인'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
