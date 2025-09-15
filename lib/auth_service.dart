@@ -10,10 +10,22 @@ class AuthService {
 
   static Future<User?> signInWithGoogle() async {
     try {
+      // Google 로그인 초기화 확인
+      await _googleSignIn.signOut(); // 이전 세션 정리
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      if (googleUser == null) {
+        // 사용자가 로그인을 취소함
+        return null;
+      }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // 토큰 검증
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw Exception('Google 인증 토큰을 가져올 수 없습니다.');
+      }
+
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -21,9 +33,12 @@ class AuthService {
 
       final UserCredential result = await _auth.signInWithCredential(credential);
       return result.user;
+    } on FirebaseAuthException catch (e) {
+      // Firebase 인증 관련 오류
+      throw Exception('Firebase 인증 오류: ${e.message}');
     } catch (e) {
-      // Google sign in cancelled or failed
-      return null;
+      // 기타 오류
+      throw Exception('로그인 처리 중 오류 발생: $e');
     }
   }
 
