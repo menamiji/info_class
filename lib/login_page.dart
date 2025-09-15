@@ -1,6 +1,77 @@
 import 'package:flutter/material.dart';
 import 'auth_service.dart';
 
+class GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    // Google G 로고 그리기
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final radius = size.width * 0.4;
+
+    // Blue part
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+      -1.57, // -90 degrees
+      3.14, // 180 degrees
+      true,
+      paint,
+    );
+
+    // Green part
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+      1.57, // 90 degrees
+      1.57, // 90 degrees
+      true,
+      paint,
+    );
+
+    // Yellow part
+    paint.color = const Color(0xFFFFBB33);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+      3.14, // 180 degrees
+      1.57, // 90 degrees
+      true,
+      paint,
+    );
+
+    // Red part
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(centerX, centerY), radius: radius),
+      -1.57, // -90 degrees
+      1.57, // 90 degrees
+      true,
+      paint,
+    );
+
+    // White center circle
+    paint.color = Colors.white;
+    canvas.drawCircle(Offset(centerX, centerY), radius * 0.5, paint);
+
+    // Blue rectangle (right part of G)
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawRect(
+      Rect.fromLTWH(
+        centerX,
+        centerY - radius * 0.25,
+        radius * 0.7,
+        radius * 0.5,
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -51,35 +122,58 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.school,
-              size: 80,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              '정보 수업',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 48),
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _handleGoogleSignIn,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.login, size: 24),
-              label: Text(_isLoading ? '로그인 중...' : 'Google로 로그인'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+            Container(
+              width: 280,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleGoogleSignIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4285F4), // Google Blue
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shadowColor: Colors.black26,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: CustomPaint(
+                              size: const Size(20, 20),
+                              painter: GoogleLogoPainter(),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          const Text(
+                            'Sign in with Google',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
           ],

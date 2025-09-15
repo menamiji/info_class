@@ -220,6 +220,76 @@ Response: {"ok": true, "data": {"files": [{"name": "template.xlsx"}]}}
 
 ## Common Issues & Quick Fixes
 
+### Firebase Setup & Google Sign-In Configuration
+```bash
+# Firebase project configuration
+flutterfire configure --project=info-class-7398a
+
+# If flutterfire CLI not found, install first:
+dart pub global activate flutterfire_cli
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+```
+
+**Manual Firebase Configuration:**
+```dart
+// lib/firebase_options.dart - Update with new project settings
+static const FirebaseOptions web = FirebaseOptions(
+  apiKey: 'AIzaSyAKOJuQm6s_BjmNaYsBwDbGr_p7xGCpiIo',
+  appId: '1:39629805865:web:3082daaa6741f4bd49ff38',
+  messagingSenderId: '39629805865',
+  projectId: 'info-class-7398a',
+  authDomain: 'info-class-7398a.firebaseapp.com',
+  storageBucket: 'info-class-7398a.firebasestorage.app',
+  measurementId: 'G-SZ73LYNGND',
+);
+```
+
+**Google Sign-In Web Configuration:**
+```html
+<!-- web/index.html - Add Google Client ID -->
+<meta name="google-signin-client_id" content="39629805865-ji2gb8uktr43i3m5fcqf9to22v97193l.apps.googleusercontent.com">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+```
+
+**Required Google Cloud Console Setup:**
+1. **OAuth 동의 화면**: 외부 → 테스트 모드로 설정
+2. **People API 활성화**: https://console.cloud.google.com/apis/library/people.googleapis.com
+3. **OAuth 2.0 클라이언트 ID**: 승인된 JavaScript 원본에 `http://localhost:3000` 추가
+4. **테스트 사용자**: 로그인할 Google 계정 추가
+
+**Web-Specific Google Sign-In Issue Fix:**
+```dart
+// lib/auth_service.dart - Handle missing idToken in web environment
+static Future<User?> signInWithGoogle() async {
+  try {
+    await _googleSignIn.signOut(); // Clear previous session
+    
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) return null;
+    
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    
+    // 웹에서는 idToken이 없을 수 있음 - accessToken만 확인
+    if (googleAuth.accessToken == null) {
+      throw Exception('Google 액세스 토큰을 가져올 수 없습니다.');
+    }
+    
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken, // null이어도 Firebase가 처리
+    );
+    
+    final UserCredential result = await _auth.signInWithCredential(credential);
+    return result.user;
+  } catch (e) {
+    throw Exception('로그인 처리 중 오류 발생: $e');
+  }
+}
+```
+
 ### Authentication Problems
 ```dart
 // Token refresh issue
@@ -326,7 +396,13 @@ curl https://info.pocheonil.hs.kr/info_class/api/healthz
 - **Custom JWT**: Enables role-based backend access control
 - **Feature Structure**: Easier maintenance and testing than layer-based
 
+## 📚 추가 문서
+
+- **[트러블슈팅 가이드](docs/TROUBLESHOOTING.md)**: Firebase Google Sign-In 문제해결 가이드
+- **[API 문서](docs/API.md)**: FastAPI 백엔드 API 명세서 (예정)
+- **[배포 가이드](docs/DEPLOYMENT.md)**: 프로덕션 배포 절차 (예정)
+
 ---
-**Document Version**: 3.0 (Development-Focused)
-**Last Updated**: 2025-09-15
-**Next Review**: After Phase 1 (Auth) completion
+**Document Version**: 3.1 (Authentication-Complete)
+**Last Updated**: 2025-01-09
+**Next Review**: After Phase 2 (File Management) completion

@@ -21,14 +21,14 @@ class AuthService {
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // 토큰 검증
-      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
-        throw Exception('Google 인증 토큰을 가져올 수 없습니다.');
+      // 웹에서는 idToken이 없을 수 있으므로 accessToken만으로도 시도
+      if (googleAuth.accessToken == null) {
+        throw Exception('Google 액세스 토큰을 가져올 수 없습니다.');
       }
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: googleAuth.idToken, // idToken이 null이어도 괜찮음
       );
 
       final UserCredential result = await _auth.signInWithCredential(credential);
