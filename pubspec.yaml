@@ -38,6 +38,12 @@ dependencies:
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.0
 
+  # Backend integration & state management
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.0
+  http: ^1.1.0
+  file_picker: ^8.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -48,6 +54,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+
+  # Code generation for Riverpod
+  build_runner: ^2.4.7
+  riverpod_generator: ^2.3.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
