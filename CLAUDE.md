@@ -10,12 +10,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Implementation Status
 - ✅ **Infrastructure**: Complete (server, networking, file storage)
-- ❌ **Frontend**: Start here - Flutter project with auth and file management
+- ✅ **Authentication Cleanup**: Complete (Google Sign-In optimized, dependencies updated, tests fixed)
+- 🔄 **Frontend**: Ready for development - Flutter project with auth foundation
 - ❌ **Backend**: FastAPI with JWT validation and file operations
 - ⚠️ **Database**: Choose between Supabase PostgreSQL or custom setup
 
 ### Current Priority
-**Phase 1**: Authentication system (Firebase → custom JWT → role-based routing)
+**Phase 1**: Authentication implementation (foundation ready, build login screens and state management)
 
 ## Quick Start
 
@@ -41,7 +42,7 @@ dependencies:
   firebase_core: ^2.24.2
   firebase_auth: ^4.15.3
   http: ^1.1.0
-  file_picker: ^6.1.1
+  file_picker: ^8.1.2
 
 dev_dependencies:
   build_runner: ^2.4.7
@@ -164,11 +165,12 @@ lib/
 ```
 
 ### Development Phases
-**Phase 1**: Authentication Foundation
-- Firebase Auth setup
-- Login/logout screens
-- Role-based routing
-- Token management
+**Phase 1**: Authentication Foundation ✅ Cleanup Complete
+- ✅ Firebase Auth setup and Google Sign-In optimization
+- ✅ Dependencies and test infrastructure ready
+- 🔄 Login/logout screens (next: implementation)
+- 🔄 Role-based routing (next: implementation)
+- 🔄 Token management (next: implementation)
 
 **Phase 2**: File Management
 - File upload/download
@@ -402,7 +404,21 @@ curl https://info.pocheonil.hs.kr/info_class/api/healthz
 - **[API 문서](docs/API.md)**: FastAPI 백엔드 API 명세서 (예정)
 - **[배포 가이드](docs/DEPLOYMENT.md)**: 프로덕션 배포 절차 (예정)
 
+## Cleanup & Optimization Completed
+
+### Recent Changes (2025-01-09)
+- ✅ **Authentication Service**: Optimized signOut method for better performance
+- ✅ **Dependencies**: Updated file_picker to ^8.1.2, resolved DEBUG console warnings
+- ✅ **Test Infrastructure**: Replaced obsolete counter test with basic app initialization test
+- ✅ **Backend Integration**: Added Riverpod dependencies for state management
+- ✅ **Code Quality**: All flutter analyze and flutter test validations passing
+
+### Known Working Solutions
+- **Web Google Sign-In**: Session cleanup code `await _googleSignIn.signOut()` is essential for web compatibility
+- **file_picker Plugin**: Version 8.1.2+ resolves all DEBUG console warning spam
+- **Test Setup**: Basic Material app test ensures compilation and import correctness
+
 ---
-**Document Version**: 3.1 (Authentication-Complete)
+**Document Version**: 3.2 (Cleanup-Complete)
 **Last Updated**: 2025-01-09
-**Next Review**: After Phase 2 (File Management) completion
+**Next Review**: After Phase 1 Authentication implementation
