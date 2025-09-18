@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/auth_provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final user = AuthService.currentUser;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -15,7 +16,7 @@ class HomePage extends StatelessWidget {
           PopupMenuButton<String>(
             onSelected: (value) async {
               if (value == 'logout') {
-                await AuthService.signOut();
+                await ref.read(authNotifierProvider.notifier).signOut();
               }
             },
             itemBuilder: (context) => [

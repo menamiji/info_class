@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/auth_provider.dart';
 
 class GoogleLogoPainter extends CustomPainter {
   @override
@@ -72,40 +73,10 @@ class GoogleLogoPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  bool _isLoading = false;
-
-  Future<void> _handleGoogleSignIn() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final user = await AuthService.signInWithGoogle();
-      if (user == null && mounted) {
-        _showErrorMessage('로그인이 취소되었습니다.');
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorMessage('로그인 중 오류가 발생했습니다: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  void _showErrorMessage(String message) {
+  void _showErrorMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -116,17 +87,51 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch loading state for reactive UI updates
+    final isLoading = ref.watch(isAuthLoadingProvider);
+
+    // Show error message when authentication fails
+    ref.listen(authNotifierProvider, (previous, next) {
+      next.whenOrNull(
+        error: (error, stackTrace) {
+          _showErrorMessage(context, error.toString());
+        },
+      );
+    });
+
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // App title/branding
+            Text(
+              '정보처리와관리',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '파일 제출 시스템',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 48),
+
+            // Google Sign-in Button
             SizedBox(
               width: 280,
               height: 50,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _handleGoogleSignIn,
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        ref.read(authNotifierProvider.notifier).signInWithGoogle();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4285F4), // Google Blue
                   foregroundColor: Colors.white,
@@ -137,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-                child: _isLoading
+                child: isLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -166,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(width: 16),
                           const Text(
-                            'Sign in with Google',
+                            'Google로 로그인',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -175,6 +180,16 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
               ),
+            ),
+
+            // Domain restriction notice
+            const SizedBox(height: 24),
+            Text(
+              '@pocheonil.hs.kr 계정만 로그인 가능합니다',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
