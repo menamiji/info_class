@@ -204,6 +204,31 @@ final isStudentProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef IsStudentRef = AutoDisposeFutureProviderRef<bool>;
+String _$authenticatedUserStateHash() =>
+    r'0038fc52234beb11f84ea13401caac9bc1e64610';
+
+/// Combined authentication state provider
+///
+/// Provides a single point of truth for authentication and role state,
+/// eliminating the need for nested async handling in UI components
+///
+/// Copied from [authenticatedUserState].
+@ProviderFor(authenticatedUserState)
+final authenticatedUserStateProvider =
+    AutoDisposeFutureProvider<AuthenticatedUserState>.internal(
+      authenticatedUserState,
+      name: r'authenticatedUserStateProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$authenticatedUserStateHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AuthenticatedUserStateRef =
+    AutoDisposeFutureProviderRef<AuthenticatedUserState>;
 String _$authNotifierHash() => r'65186e2146a94aeab65ed243d98819c7401905df';
 
 /// Authentication state management using Riverpod

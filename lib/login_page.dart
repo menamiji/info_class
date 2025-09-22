@@ -76,6 +76,15 @@ class GoogleLogoPainter extends CustomPainter {
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
+  Future<void> _handleGoogleSignIn(WidgetRef ref) async {
+    try {
+      await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+    } catch (e) {
+      // Error handling is already done in the provider
+      debugPrint('Login error: $e');
+    }
+  }
+
   void _showErrorMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -88,50 +97,66 @@ class LoginPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch loading state for reactive UI updates
-    final isLoading = ref.watch(isAuthLoadingProvider);
-
-    // Show error message when authentication fails
-    ref.listen(authNotifierProvider, (previous, next) {
-      next.whenOrNull(
-        error: (error, stackTrace) {
-          _showErrorMessage(context, error.toString());
-        },
-      );
-    });
+    final authState = ref.watch(authNotifierProvider);
+    final isLoading = authState.isLoading;
 
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App title/branding
+            // Add app title and description
+            Icon(
+              Icons.school,
+              size: 80,
+              color: Theme.of(context).primaryColor,
+            ),
+            const SizedBox(height: 24),
             Text(
-              '정보처리와관리',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-              ),
+              '정보 수업',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
-              '파일 제출 시스템',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              '포천일고등학교 정보 수업 시스템',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
             ),
             const SizedBox(height: 48),
 
-            // Google Sign-in Button
+            // Show error if exists
+            if (authState.hasError) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.error, color: Colors.red),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        authState.error.toString(),
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             SizedBox(
               width: 280,
               height: 50,
               child: ElevatedButton(
-                onPressed: isLoading
-                    ? null
-                    : () {
-                        ref.read(authNotifierProvider.notifier).signInWithGoogle();
-                      },
+                onPressed: isLoading ? null : () => _handleGoogleSignIn(ref),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4285F4), // Google Blue
                   foregroundColor: Colors.white,
@@ -171,7 +196,7 @@ class LoginPage extends ConsumerWidget {
                           ),
                           const SizedBox(width: 16),
                           const Text(
-                            'Google로 로그인',
+                            'Sign in with Google',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -180,16 +205,6 @@ class LoginPage extends ConsumerWidget {
                         ],
                       ),
               ),
-            ),
-
-            // Domain restriction notice
-            const SizedBox(height: 24),
-            Text(
-              '@pocheonil.hs.kr 계정만 로그인 가능합니다',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import '../auth_service.dart';
 import '../shared/data/api_client.dart';
 import '../shared/services/token_storage.dart';
 import '../shared/models/backend_user.dart';
+import '../models/authenticated_user_state.dart';
 
 part 'auth_provider.g.dart';
 
@@ -243,4 +244,49 @@ Future<bool> isAdmin(Ref ref) async {
 Future<bool> isStudent(Ref ref) async {
   final role = await ref.watch(userRoleProvider.future);
   return role.isStudent;
+}
+
+/// Combined authentication state provider
+///
+/// Provides a single point of truth for authentication and role state,
+/// eliminating the need for nested async handling in UI components
+@riverpod
+Future<AuthenticatedUserState> authenticatedUserState(Ref ref) async {
+  try {
+    // Get Firebase authentication state
+    final firebaseUser = await ref.watch(authNotifierProvider.future);
+
+    if (firebaseUser == null) {
+      return const AuthenticatedUserState.notAuthenticated();
+    }
+
+    // Check if we have valid JWT token
+    final hasValidToken = await ref.watch(hasValidJwtProvider.future);
+    if (!hasValidToken) {
+      // Firebase user exists but no valid JWT - should trigger re-authentication
+      return const AuthenticatedUserState.notAuthenticated();
+    }
+
+    // Get backend user information with role
+    final backendUser = await ref.watch(backendUserProvider.future);
+    final userRole = await ref.watch(userRoleProvider.future);
+
+    if (backendUser == null) {
+      // JWT exists but backend user fetch failed - treat as guest
+      return AuthenticatedUserState.withRole(
+        firebaseUser,
+        null,
+        UserRole.guest,
+      );
+    }
+
+    return AuthenticatedUserState.withRole(
+      firebaseUser,
+      backendUser,
+      userRole,
+    );
+  } catch (e) {
+    // On any error, treat as not authenticated
+    return const AuthenticatedUserState.notAuthenticated();
+  }
 }
