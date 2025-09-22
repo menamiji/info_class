@@ -144,6 +144,94 @@ file_picker: ^8.1.2  # DEBUG 콘솔 경고 해결됨
 dart run build_runner build --delete-conflicting-outputs
 ```
 
+## 🔧 JWT 인증 트러블슈팅 가이드
+
+**문제**: "Exception: 요청 처리 중 오류가 발생했습니다."
+
+### 해결된 주요 문제들
+
+#### 1. 백엔드 서버 미실행
+```bash
+# 문제: API 요청 실패
+# 해결: Python 가상환경 설정 및 서버 시작
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 2. 환경변수 누락 (.env 파일)
+```bash
+# 문제: SECRET_KEY environment variable is required
+# 해결: .env 파일 생성
+cd backend
+echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+echo "DEBUG=true" >> .env
+echo "FIREBASE_PROJECT_ID=info-class-7398a" >> .env
+```
+
+#### 3. Python 상대 import 오류
+```bash
+# 문제: ImportError: attempted relative import beyond top-level package
+# 해결: 모든 상대 import를 절대 import로 변경
+find . -name "*.py" -exec sed -i 's/from \.\./from /g' {} \;
+find . -name "*.py" -exec sed -i 's/from \./from /g' {} \;
+```
+
+#### 4. 누락된 종속성
+```bash
+# 문제: email-validator is not installed
+# 해결: Pydantic 이메일 검증 패키지 설치
+pip install pydantic[email]
+```
+
+#### 5. CORS 정책 위반
+```python
+# backend/config/settings.py
+# 개발 모드에서 모든 origin 허용
+ALLOWED_ORIGINS: List[str] = ["*"] if os.getenv("DEBUG", "False").lower() == "true" else [
+    "https://info.pocheonil.hs.kr",
+]
+```
+
+#### 6. Firebase Admin SDK 자격 증명 누락
+```python
+# backend/auth/firebase_validator.py
+# 개발 모드 우회 기능 추가
+if settings.DEBUG and not firebase_config.is_initialized():
+    print("🔧 Development mode: Using mock Firebase token validation")
+    return UserInfo(
+        uid="dev_user_123",
+        email="admin@pocheonil.hs.kr",
+        name="개발자 계정",
+        picture=None,
+        email_verified=True
+    )
+```
+
+### 진단 도구
+```bash
+# API 서버 상태 확인
+curl http://localhost:8000/api/healthz
+
+# 백엔드 로그 모니터링
+cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Flutter 앱 로그 확인 (Chrome 개발자 도구)
+# Console 탭에서 네트워크 오류 및 인증 관련 메시지 확인
+```
+
+### 예방 방법
+1. **환경 설정 체크리스트**: 새 개발 환경에서 .env 파일, 가상환경, 종속성 설치 확인
+2. **개발 모드 설정**: DEBUG=true로 설정하여 Firebase 우회 및 CORS 완화 활성화
+3. **로그 모니터링**: 백엔드와 프론트엔드 로그를 동시에 모니터링하여 빠른 문제 진단
+4. **단계별 테스트**: 서버 → API → 인증 → JWT 교환 순서로 각 단계별 테스트 수행
+
+### 추가 문서
+- **상세 트러블슈팅**: `4_dev/401_info_class/JWT 인증 트러블슈팅 가이드.md` (Obsidian)
+- **개발 가이드**: `CLAUDE.md` 프로젝트별 개발 지침
+
 ## 🏗 시스템 아키텍처
 
 ### 파일 저장 구조

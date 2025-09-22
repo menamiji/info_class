@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict
 
-from ..auth.models import (
+from auth.models import (
     FirebaseTokenRequest,
     TokenExchangeResponse,
     TokenData,
@@ -13,9 +13,9 @@ from ..auth.models import (
     ErrorDetail,
     UserWithRole
 )
-from ..auth.firebase_validator import FirebaseTokenValidator
-from ..auth.role_manager import RoleManager
-from ..auth.jwt_manager import JWTManager
+from auth.firebase_validator import FirebaseTokenValidator
+from auth.role_manager import RoleManager
+from auth.jwt_manager import JWTManager
 
 # Initialize router and security
 router = APIRouter()

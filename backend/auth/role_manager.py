@@ -3,7 +3,7 @@ User role determination and permission management.
 """
 from typing import List
 
-from ..config.settings import settings
+from config.settings import settings
 from .models import UserInfo, UserWithRole, UserRole
 
 

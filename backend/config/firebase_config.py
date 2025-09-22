@@ -61,6 +61,16 @@ class FirebaseConfig:
             raise ValueError(f"Failed to initialize Firebase Admin SDK: {str(e)}")
 
     @classmethod
+    def is_initialized(cls) -> bool:
+        """
+        Check if Firebase Admin SDK is initialized.
+
+        Returns:
+            bool: True if Firebase app is initialized, False otherwise
+        """
+        return cls._app is not None
+
+    @classmethod
     def get_auth_client(cls) -> auth:
         """
         Get Firebase Auth client instance.

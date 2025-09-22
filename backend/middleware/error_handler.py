@@ -8,7 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import traceback
 from typing import Dict, Any
 
-from ..config.settings import settings
+from config.settings import settings
 
 
 def add_error_handlers(app: FastAPI) -> None:

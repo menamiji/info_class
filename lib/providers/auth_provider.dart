@@ -2,6 +2,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../auth_service.dart';
+import '../shared/data/api_client.dart';
+import '../shared/services/token_storage.dart';
+import '../shared/models/backend_user.dart';
 
 part 'auth_provider.g.dart';
 
@@ -35,11 +38,12 @@ class AuthNotifier extends _$AuthNotifier {
     return AuthService.currentUser;
   }
 
-  /// Sign in with Google - preserves critical session cleanup logic
+  /// Sign in with Google and exchange for JWT token
   Future<void> signInWithGoogle() async {
     state = const AsyncLoading();
 
     try {
+      // Step 1: Firebase authentication
       final user = await AuthService.signInWithGoogle();
       if (user == null) {
         // User cancelled the sign-in
@@ -47,9 +51,44 @@ class AuthNotifier extends _$AuthNotifier {
           Exception('로그인이 취소되었습니다.'),
           StackTrace.current,
         );
-      } else {
-        state = AsyncData(user);
+        return;
       }
+
+      // Step 2: Get Firebase ID token for backend exchange
+      final firebaseToken = await user.getIdToken();
+      if (firebaseToken == null) {
+        state = AsyncError(
+          Exception('Firebase 토큰을 가져올 수 없습니다.'),
+          StackTrace.current,
+        );
+        return;
+      }
+
+      // Step 3: Exchange Firebase token for JWT
+      final jwtResponse = await ApiClient.exchangeFirebaseToken(firebaseToken);
+
+      if (!jwtResponse.ok || jwtResponse.data == null) {
+        // Backend authentication failed
+        await AuthService.signOut(); // Clean up Firebase auth
+        state = AsyncError(
+          Exception(jwtResponse.error?.message ?? '백엔드 인증에 실패했습니다.'),
+          StackTrace.current,
+        );
+        return;
+      }
+
+      // Step 4: Store JWT token and user data
+      final tokenData = jwtResponse.data!;
+      await TokenStorage.saveToken(
+        jwtToken: tokenData.jwtToken,
+        userRole: tokenData.user.role.value,
+        userEmail: tokenData.user.email,
+        expiryTime: tokenData.expiresAt,
+      );
+
+      // Step 5: Update state with successful authentication
+      state = AsyncData(user);
+
     } on FirebaseAuthException catch (e) {
       state = AsyncError(
         Exception('Firebase 인증 오류: ${e.message}'),
@@ -63,12 +102,17 @@ class AuthNotifier extends _$AuthNotifier {
     }
   }
 
-  /// Sign out from all authentication providers
+  /// Sign out from all authentication providers and clear tokens
   Future<void> signOut() async {
     state = const AsyncLoading();
 
     try {
+      // Clear JWT token and backend auth data
+      await TokenStorage.clearToken();
+
+      // Sign out from Firebase
       await AuthService.signOut();
+
       state = const AsyncData(null);
     } catch (e) {
       state = AsyncError(
@@ -128,4 +172,75 @@ String? authError(Ref ref) {
     loading: () => null,
     error: (error, _) => error.toString(),
   );
+}
+
+/// Provider for backend user information with role
+/// Returns null if not authenticated or JWT not available
+@riverpod
+Future<BackendUser?> backendUser(Ref ref) async {
+  // Watch authentication state to trigger refresh when user changes
+  final authState = ref.watch(authNotifierProvider);
+
+  return authState.when(
+    data: (firebaseUser) async {
+      if (firebaseUser == null) return null;
+
+      // Check if we have valid JWT token
+      final hasToken = await TokenStorage.hasValidToken();
+      if (!hasToken) return null;
+
+      try {
+        // Get current user info from backend
+        final response = await ApiClient.getCurrentUser();
+        if (response.ok && response.data != null) {
+          return response.data!.user;
+        }
+        return null;
+      } catch (e) {
+        // If backend call fails, return null (will trigger re-authentication)
+        return null;
+      }
+    },
+    loading: () => null,
+    error: (_, __) => null,
+  );
+}
+
+/// Provider for user role
+/// Returns UserRole.guest if not authenticated or role not available
+@riverpod
+Future<UserRole> userRole(Ref ref) async {
+  final backendUserData = await ref.watch(backendUserProvider.future);
+  return backendUserData?.role ?? UserRole.guest;
+}
+
+/// Provider for JWT token validity
+/// Returns true if valid JWT token exists
+@riverpod
+Future<bool> hasValidJwt(Ref ref) async {
+  // Watch auth state to trigger refresh when user changes
+  final authState = ref.watch(authNotifierProvider);
+
+  return authState.when(
+    data: (firebaseUser) async {
+      if (firebaseUser == null) return false;
+      return await TokenStorage.hasValidToken();
+    },
+    loading: () => false,
+    error: (_, __) => false,
+  );
+}
+
+/// Provider for checking if user has admin privileges
+@riverpod
+Future<bool> isAdmin(Ref ref) async {
+  final role = await ref.watch(userRoleProvider.future);
+  return role.isAdmin;
+}
+
+/// Provider for checking if user is a student
+@riverpod
+Future<bool> isStudent(Ref ref) async {
+  final role = await ref.watch(userRoleProvider.future);
+  return role.isStudent;
 }

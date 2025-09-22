@@ -5,7 +5,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 
-from ..config.settings import settings
+from config.settings import settings
 from .models import UserWithRole, JWTPayload
 
 

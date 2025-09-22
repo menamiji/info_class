@@ -106,7 +106,105 @@ final authErrorProvider = AutoDisposeProvider<String?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthErrorRef = AutoDisposeProviderRef<String?>;
-String _$authNotifierHash() => r'0e036fc7786c852fea8271905b85944d7ca5b895';
+String _$backendUserHash() => r'a1d80d74ea0f0b3c2558d23e83fa556ef596d558';
+
+/// Provider for backend user information with role
+/// Returns null if not authenticated or JWT not available
+///
+/// Copied from [backendUser].
+@ProviderFor(backendUser)
+final backendUserProvider = AutoDisposeFutureProvider<BackendUser?>.internal(
+  backendUser,
+  name: r'backendUserProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$backendUserHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef BackendUserRef = AutoDisposeFutureProviderRef<BackendUser?>;
+String _$userRoleHash() => r'3d31cd951c45dfb7da181aae3a30574a99d8dc02';
+
+/// Provider for user role
+/// Returns UserRole.guest if not authenticated or role not available
+///
+/// Copied from [userRole].
+@ProviderFor(userRole)
+final userRoleProvider = AutoDisposeFutureProvider<UserRole>.internal(
+  userRole,
+  name: r'userRoleProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$userRoleHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UserRoleRef = AutoDisposeFutureProviderRef<UserRole>;
+String _$hasValidJwtHash() => r'453752d9bf02f648418bd1b66fe8813e35f378c0';
+
+/// Provider for JWT token validity
+/// Returns true if valid JWT token exists
+///
+/// Copied from [hasValidJwt].
+@ProviderFor(hasValidJwt)
+final hasValidJwtProvider = AutoDisposeFutureProvider<bool>.internal(
+  hasValidJwt,
+  name: r'hasValidJwtProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$hasValidJwtHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HasValidJwtRef = AutoDisposeFutureProviderRef<bool>;
+String _$isAdminHash() => r'49af6c22d6d7bffade9bf704d76577144acabb2e';
+
+/// Provider for checking if user has admin privileges
+///
+/// Copied from [isAdmin].
+@ProviderFor(isAdmin)
+final isAdminProvider = AutoDisposeFutureProvider<bool>.internal(
+  isAdmin,
+  name: r'isAdminProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isAdminHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef IsAdminRef = AutoDisposeFutureProviderRef<bool>;
+String _$isStudentHash() => r'd4bf71a6e5a899744f1916ad0a9f4d63ca0ed8c6';
+
+/// Provider for checking if user is a student
+///
+/// Copied from [isStudent].
+@ProviderFor(isStudent)
+final isStudentProvider = AutoDisposeFutureProvider<bool>.internal(
+  isStudent,
+  name: r'isStudentProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isStudentHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef IsStudentRef = AutoDisposeFutureProviderRef<bool>;
+String _$authNotifierHash() => r'65186e2146a94aeab65ed243d98819c7401905df';
 
 /// Authentication state management using Riverpod
 ///

@@ -35,11 +35,9 @@ class Settings:
         "/path/to/service-account-key.json"
     )
 
-    # CORS settings
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",  # Flutter dev server
+    # CORS settings - allow all origins in development mode
+    ALLOWED_ORIGINS: List[str] = ["*"] if os.getenv("DEBUG", "False").lower() == "true" else [
         "https://info.pocheonil.hs.kr",  # Production domain
-        "http://127.0.0.1:3000",  # Local development alternative
     ]
 
     # Domain restrictions

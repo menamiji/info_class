@@ -5,8 +5,8 @@ from typing import Optional
 from firebase_admin import auth as firebase_auth
 from firebase_admin.auth import InvalidIdTokenError, ExpiredIdTokenError, RevokedIdTokenError
 
-from ..config.firebase_config import firebase_config
-from ..config.settings import settings
+from config.firebase_config import firebase_config
+from config.settings import settings
 from .models import UserInfo
 
 
@@ -28,6 +28,17 @@ class FirebaseTokenValidator:
             ValueError: If token is invalid, expired, or user is not authorized
         """
         try:
+            # In development mode, if Firebase is not initialized, return mock user
+            if settings.DEBUG and not firebase_config.is_initialized():
+                print("🔧 Development mode: Using mock Firebase token validation")
+                return UserInfo(
+                    uid="dev_user_123",
+                    email="admin@pocheonil.hs.kr",
+                    name="개발자 계정",
+                    picture=None,
+                    email_verified=True
+                )
+
             # Verify the Firebase ID token
             decoded_token = firebase_config.verify_id_token(firebase_token)
 
