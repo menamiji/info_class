@@ -5,6 +5,7 @@ import '../auth_service.dart';
 import '../shared/data/api_client.dart';
 import '../shared/services/token_storage.dart';
 import '../shared/models/backend_user.dart';
+import '../shared/models/user_info_response.dart';
 import '../models/authenticated_user_state.dart';
 
 part 'auth_provider.g.dart';
@@ -194,7 +195,7 @@ Future<BackendUser?> backendUser(Ref ref) async {
         // Get current user info from backend
         final response = await ApiClient.getCurrentUser();
         if (response.ok && response.data != null) {
-          return response.data!.user;
+          return response.data!;
         }
         return null;
       } catch (e) {

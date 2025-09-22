@@ -106,7 +106,7 @@ final authErrorProvider = AutoDisposeProvider<String?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthErrorRef = AutoDisposeProviderRef<String?>;
-String _$backendUserHash() => r'a1d80d74ea0f0b3c2558d23e83fa556ef596d558';
+String _$backendUserHash() => r'0df187aa00b3025d9edbc06e94c6962a07dc6382';
 
 /// Provider for backend user information with role
 /// Returns null if not authenticated or JWT not available

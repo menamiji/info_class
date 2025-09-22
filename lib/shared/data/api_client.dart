@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 import '../models/jwt_response.dart';
+import '../models/user_info_response.dart';
+import '../models/backend_user.dart';
 import '../services/token_storage.dart';
 
 /// API client for communicating with the Info Class backend
@@ -95,12 +97,12 @@ class ApiClient {
 
   /// Get current user information using stored JWT token
   ///
-  /// Returns [JwtResponse] with current user data or error
-  static Future<JwtResponse> getCurrentUser() async {
+  /// Returns [UserInfoResponse] with current user data or error
+  static Future<UserInfoResponse> getCurrentUser() async {
     try {
       final token = await TokenStorage.getToken();
       if (token == null) {
-        return JwtResponse(
+        return UserInfoResponse(
           ok: false,
           error: ApiError(
             code: 'NO_TOKEN',
@@ -126,7 +128,23 @@ class ApiClient {
 
       if (response.statusCode == 200) {
         debugPrint('✅ User info retrieved successfully');
-        return JwtResponse.fromJson(responseData);
+
+        // Convert /auth/me response to BackendUser
+        final data = responseData['data'] as Map<String, dynamic>;
+        final backendUser = BackendUser(
+          uid: data['uid'] as String,
+          email: data['email'] as String,
+          name: data['name'] as String?,
+          picture: null, // /auth/me doesn't return picture
+          emailVerified: true, // Assumed true if we got here
+          role: UserRole.fromString(data['role'] as String),
+          permissions: List<String>.from(data['permissions'] as List? ?? []),
+        );
+
+        return UserInfoResponse(
+          ok: true,
+          data: backendUser,
+        );
       } else {
         debugPrint('❌ Failed to get user info: ${response.statusCode}');
 
@@ -135,11 +153,18 @@ class ApiClient {
           await TokenStorage.clearToken();
         }
 
-        return JwtResponse.fromJson(responseData);
+        final error = responseData['error'] as Map<String, dynamic>?;
+        return UserInfoResponse(
+          ok: false,
+          error: error != null ? ApiError.fromJson(error) : ApiError(
+            code: 'UNKNOWN_ERROR',
+            message: 'Unknown error occurred',
+          ),
+        );
       }
     } on SocketException catch (e) {
       debugPrint('🌐 Network error getting user info: $e');
-      return JwtResponse(
+      return UserInfoResponse(
         ok: false,
         error: ApiError(
           code: 'NETWORK_ERROR',
@@ -149,7 +174,7 @@ class ApiClient {
       );
     } catch (e) {
       debugPrint('💥 Unexpected error getting user info: $e');
-      return JwtResponse(
+      return UserInfoResponse(
         ok: false,
         error: ApiError(
           code: 'UNKNOWN_ERROR',

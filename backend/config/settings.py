@@ -46,7 +46,8 @@ class Settings:
     # Admin email list (for role determination)
     ADMIN_EMAILS: List[str] = [
         "admin@pocheonil.hs.kr",
-        # Add more admin emails as needed
+        "menamiji@pocheonil.hs.kr",  # 김홍준 님
+        # 더 많은 관리자 이메일을 필요에 따라 추가
     ]
 
     # API settings

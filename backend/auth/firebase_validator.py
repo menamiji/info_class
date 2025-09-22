@@ -31,9 +31,12 @@ class FirebaseTokenValidator:
             # In development mode, if Firebase is not initialized, return mock user
             if settings.DEBUG and not firebase_config.is_initialized():
                 print("🔧 Development mode: Using mock Firebase token validation")
+                # TODO: In real development, extract email from actual Firebase token
+                # For now, use a configurable mock email
+                mock_email = "menamiji@pocheonil.hs.kr"  # Change this for testing different users
                 return UserInfo(
                     uid="dev_user_123",
-                    email="admin@pocheonil.hs.kr",
+                    email=mock_email,
                     name="개발자 계정",
                     picture=None,
                     email_verified=True
