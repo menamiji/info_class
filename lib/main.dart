@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'login_page.dart';
 import 'screens/admin_screen.dart';
 import 'screens/student_screen.dart';
+import 'screens/portal_screen.dart';
 import 'widgets/common/app_layout.dart';
 import 'shared/models/backend_user.dart';
 
@@ -25,16 +27,46 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Info Class',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const AuthRouter(),
+      routerConfig: _router,
     );
   }
 }
+
+// GoRouter 설정
+final _router = GoRouter(
+  routes: [
+    // 루트 경로 - 포털 또는 로그인
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const AuthRouter(),
+    ),
+    // 포털 화면
+    GoRoute(
+      path: '/portal',
+      builder: (context, state) => const PortalScreen(),
+    ),
+    // 정보 수업 시스템
+    GoRoute(
+      path: '/info',
+      builder: (context, state) => const AuthRouter(),
+    ),
+    // 향후 추가될 시스템들
+    GoRoute(
+      path: '/library',
+      builder: (context, state) => const AuthRouter(), // 임시로 AuthRouter 사용
+    ),
+    GoRoute(
+      path: '/grade',
+      builder: (context, state) => const AuthRouter(), // 임시로 AuthRouter 사용
+    ),
+  ],
+);
 
 class AuthRouter extends ConsumerWidget {
   const AuthRouter({super.key});
@@ -42,6 +74,7 @@ class AuthRouter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final currentPath = GoRouterState.of(context).uri.path;
 
     return authState.when(
       data: (firebaseUser) {
@@ -49,7 +82,7 @@ class AuthRouter extends ConsumerWidget {
           return const LoginPage();
         }
 
-        // User is authenticated, now check role
+        // User is authenticated, now check role and route appropriately
         return FutureBuilder<UserRole>(
           future: ref.read(userRoleProvider.future),
           builder: (context, snapshot) {
@@ -70,16 +103,8 @@ class AuthRouter extends ConsumerWidget {
 
             final role = snapshot.data ?? UserRole.guest;
 
-            // Route based on user role
-            switch (role) {
-              case UserRole.admin:
-                return const AdminScreen();
-              case UserRole.student:
-                return const StudentScreen();
-              case UserRole.guest:
-                // Guest users or unknown roles get a limited interface
-                return _buildGuestScreen(context, ref, firebaseUser, role);
-            }
+            // Route based on current path and user role
+            return _routeBasedOnPathAndRole(context, currentPath, role, firebaseUser, ref);
           },
         );
       },
@@ -94,6 +119,52 @@ class AuthRouter extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Widget _routeBasedOnPathAndRole(
+    BuildContext context,
+    String path,
+    UserRole role,
+    User firebaseUser,
+    WidgetRef ref
+  ) {
+    switch (path) {
+      case '/':
+        // Root path - redirect to portal for authenticated users
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.go('/portal');
+        });
+        return const AuthLoadingScreen(message: '포털로 이동 중...');
+
+      case '/portal':
+        return const PortalScreen();
+
+      case '/info':
+        // 정보 수업 시스템 - 기존 role-based routing 유지
+        switch (role) {
+          case UserRole.admin:
+            return const AdminScreen();
+          case UserRole.student:
+            return const StudentScreen();
+          case UserRole.guest:
+            return _buildGuestScreen(context, ref, firebaseUser, role);
+        }
+
+      case '/library':
+      case '/grade':
+        // 향후 구현될 시스템들 - 임시로 포털로 리다이렉트
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.go('/portal');
+        });
+        return const AuthLoadingScreen(message: '시스템 준비 중...');
+
+      default:
+        // 알 수 없는 경로 - 포털로 리다이렉트
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.go('/portal');
+        });
+        return const AuthLoadingScreen(message: '포털로 이동 중...');
+    }
   }
 
   /// Screen for guest users or users with unrecognized roles

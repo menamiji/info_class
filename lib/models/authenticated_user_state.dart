@@ -11,6 +11,7 @@ class AuthenticatedUserState {
   final bool isAuthenticated;
 
   const AuthenticatedUserState._({
+    this.firebaseUser,
     this.backendUser,
     required this.role,
     required this.isAuthenticated,
