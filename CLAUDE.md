@@ -8,27 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Tech Stack**: Flutter Web + Firebase Auth + Riverpod + FastAPI + NAS Storage
 
-### Implementation Status (2025-09-22 업데이트)
+### Implementation Status (2025-01-09 업데이트)
 - ✅ **Infrastructure**: Complete (server, networking, file storage)
 - ✅ **Frontend Authentication**: Complete (Riverpod + Firebase Auth, HomePage 마이그레이션 완료)
 - ✅ **Backend Authentication**: Complete (FastAPI + Firebase + JWT 완전 구현 - 19개 파일)
 - ✅ **JWT Integration**: **COMPLETE** - Flutter-Backend JWT 토큰 교환 완전 구현 (2025-09-22)
 - ✅ **Development Environment**: Complete (CORS, Firebase 개발모드, 환경설정 완료)
-- 🔄 **Role-based UI**: admin/student 화면 분기 구현 (현재 우선순위 1)
+- ✅ **Role-based UI**: **COMPLETE** - admin/student/guest 화면 분기 및 라우팅 완전 구현 (2025-01-09)
 - ✅ **Documentation**: Complete (트러블슈팅 가이드 포함)
 
 ### Current Priority
-**Phase 4**: 역할 기반 UI 라우팅 → 파일 관리 API → 완전한 교육용 시스템
-- JWT 인증 플로우: ✅ 100% 완료 (2025-09-22)
-- 진행률: 65% → 목표 100%
+**Phase 5**: 파일 관리 API 구현 → 실제 데이터 연동 → 프로덕션 배포
+- 역할 기반 라우팅: ✅ 100% 완료 (2025-01-09)
+- 전체 진행률: 85% → 목표 100%
 
-### Recent Updates (2025-09-22)
-🎉 **JWT 토큰 교환 시스템 완전 구현 완료**
-- ✅ Firebase → JWT 교환 플로우 구현
-- ✅ CORS 문제 해결 (개발환경 `*` 허용)
-- ✅ Firebase Admin SDK 개발모드 우회 구현
-- ✅ 백엔드 환경설정 완료 (.env, 의존성)
-- ✅ 트러블슈팅 가이드 작성
+### Recent Updates (2025-01-09)
+🎉 **역할 기반 UI 라우팅 시스템 완전 구현 완료**
+- ✅ AuthenticatedUserState 모델 구현 (clean async state management)
+- ✅ Admin/Student/Guest 화면 및 라우팅 구현
+- ✅ Role-based navigation 및 권한 제어 완료
+- ✅ API 응답 파싱 이슈 해결 (UserInfoResponse 모델 추가)
+- ✅ 관리자 계정 설정 및 검증 완료 (menamiji@pocheonil.hs.kr)
+- ✅ Material Design 3 기반 공통 레이아웃 (AppLayout) 구현
 
 ## Quick Start
 
@@ -177,21 +178,28 @@ lib/
 ```
 
 ### Development Phases
-**Phase 1**: Authentication Foundation
+**Phase 1**: Authentication Foundation ✅ **COMPLETE**
 - Firebase Auth setup
 - Login/logout screens
 - Role-based routing
 - Token management
 
-**Phase 2**: File Management
-- File upload/download
-- Subject and content management
-- Admin/student interfaces
+**Phase 2**: Role-based UI ✅ **COMPLETE**
+- Admin/Student/Guest 화면 구현
+- AuthenticatedUserState 모델
+- API 응답 파싱 및 권한 제어
+- Material Design 3 레이아웃
 
-**Phase 3**: Backend Integration
-- FastAPI implementation
-- JWT validation
-- File storage operations
+**Phase 3**: File Management 🔄 **NEXT**
+- File upload/download API
+- Subject and content management
+- 실제 백엔드 데이터 연동
+- NAS 스토리지 통합
+
+**Phase 4**: Production Deployment
+- 프로덕션 환경 설정
+- 성능 최적화
+- 보안 강화
 
 ## API Design
 
@@ -409,13 +417,42 @@ curl https://info.pocheonil.hs.kr/info_class/api/healthz
 - **Custom JWT**: Enables role-based backend access control
 - **Feature Structure**: Easier maintenance and testing than layer-based
 
+## 구현된 주요 파일 및 컴포넌트
+
+### 새로 구현된 파일들 (Role-based UI)
+- `lib/models/authenticated_user_state.dart` - Clean async state management 모델
+- `lib/widgets/common/app_layout.dart` - Material Design 3 공통 레이아웃
+- `lib/screens/admin_screen.dart` - 관리자 대시보드 (과목관리, 콘텐츠 업로드)
+- `lib/screens/student_screen.dart` - 학생 인터페이스 (수업자료, 과제제출)
+- `lib/shared/models/user_info_response.dart` - `/auth/me` API 응답 모델
+
+### 주요 수정된 파일들
+- `lib/main.dart` - AuthRouter 단순화, role-based routing 구현
+- `lib/login_page.dart` - ConsumerWidget 전환, Riverpod 패턴 적용
+- `lib/providers/auth_provider.dart` - authenticatedUserStateProvider 추가
+- `lib/shared/data/api_client.dart` - getCurrentUser() 메서드 개선
+- `backend/config/settings.py` - ADMIN_EMAILS에 menamiji@pocheonil.hs.kr 추가
+- `backend/auth/firebase_validator.py` - 개발모드 mock 이메일 업데이트
+
+### 해결된 주요 이슈들
+1. **로그인 버튼 동작 안함** → LoginPage Riverpod 패턴 적용
+2. **무한 로딩 (권한 확인중)** → AuthRouter 복잡한 provider chain 단순화
+3. **관리자 권한 인식 안됨** → API 응답 파싱 이슈 해결
+4. **Guest 역할 잘못 표시** → UserInfoResponse 모델로 올바른 파싱
+
 ## 📚 추가 문서
 
 - **[트러블슈팅 가이드](docs/TROUBLESHOOTING.md)**: Firebase Google Sign-In 문제해결 가이드
 - **[API 문서](docs/API.md)**: FastAPI 백엔드 API 명세서 (예정)
 - **[배포 가이드](docs/DEPLOYMENT.md)**: 프로덕션 배포 절차 (예정)
 
+## 다음 개발 우선순위
+
+1. **관리자/학생 화면 UI 개선** (현재 Mock 데이터)
+2. **실제 API 연동** (파일 업로드/다운로드)
+3. **프로덕션 배포 준비** (성능 최적화, 보안 강화)
+
 ---
-**Document Version**: 3.1 (Authentication-Complete)
+**Document Version**: 4.0 (Role-based-UI-Complete)
 **Last Updated**: 2025-01-09
-**Next Review**: After Phase 2 (File Management) completion
+**Next Review**: After Phase 3 (File Management API) completion

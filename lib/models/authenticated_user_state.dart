@@ -11,7 +11,6 @@ class AuthenticatedUserState {
   final bool isAuthenticated;
 
   const AuthenticatedUserState._({
-    this.firebaseUser,
     this.backendUser,
     required this.role,
     required this.isAuthenticated,
@@ -19,20 +18,20 @@ class AuthenticatedUserState {
 
   /// Create state for unauthenticated user
   const AuthenticatedUserState.notAuthenticated()
-      : firebaseUser = null,
-        backendUser = null,
-        role = UserRole.guest,
-        isAuthenticated = false;
+    : firebaseUser = null,
+      backendUser = null,
+      role = UserRole.guest,
+      isAuthenticated = false;
 
   /// Create state for authenticated user with role
   const AuthenticatedUserState.authenticated(
     this.firebaseUser,
     this.backendUser,
-  )   : role = UserRole.guest,
-        isAuthenticated = true;
+  ) : role = UserRole.guest,
+      isAuthenticated = true;
 
   /// Create state with specific role
-  AuthenticatedUserState.withRole(
+  const AuthenticatedUserState.withRole(
     this.firebaseUser,
     this.backendUser,
     this.role,
@@ -43,7 +42,8 @@ class AuthenticatedUserState {
     if (backendUser?.name != null && backendUser!.name!.isNotEmpty) {
       return backendUser!.name!;
     }
-    if (firebaseUser?.displayName != null && firebaseUser!.displayName!.isNotEmpty) {
+    if (firebaseUser?.displayName != null &&
+        firebaseUser!.displayName!.isNotEmpty) {
       return firebaseUser!.displayName!;
     }
     return backendUser?.email ?? firebaseUser?.email ?? '사용자';
@@ -89,12 +89,8 @@ class AuthenticatedUserState {
   }
 
   @override
-  int get hashCode => Object.hash(
-        firebaseUser?.uid,
-        backendUser?.uid,
-        role,
-        isAuthenticated,
-      );
+  int get hashCode =>
+      Object.hash(firebaseUser?.uid, backendUser?.uid, role, isAuthenticated);
 
   @override
   String toString() =>

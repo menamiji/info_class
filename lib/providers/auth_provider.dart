@@ -5,7 +5,6 @@ import '../auth_service.dart';
 import '../shared/data/api_client.dart';
 import '../shared/services/token_storage.dart';
 import '../shared/models/backend_user.dart';
-import '../shared/models/user_info_response.dart';
 import '../models/authenticated_user_state.dart';
 
 part 'auth_provider.g.dart';
@@ -49,10 +48,7 @@ class AuthNotifier extends _$AuthNotifier {
       final user = await AuthService.signInWithGoogle();
       if (user == null) {
         // User cancelled the sign-in
-        state = AsyncError(
-          Exception('로그인이 취소되었습니다.'),
-          StackTrace.current,
-        );
+        state = AsyncError(Exception('로그인이 취소되었습니다.'), StackTrace.current);
         return;
       }
 
@@ -90,17 +86,13 @@ class AuthNotifier extends _$AuthNotifier {
 
       // Step 5: Update state with successful authentication
       state = AsyncData(user);
-
     } on FirebaseAuthException catch (e) {
       state = AsyncError(
         Exception('Firebase 인증 오류: ${e.message}'),
         StackTrace.current,
       );
     } catch (e) {
-      state = AsyncError(
-        Exception('로그인 처리 중 오류 발생: $e'),
-        StackTrace.current,
-      );
+      state = AsyncError(Exception('로그인 처리 중 오류 발생: $e'), StackTrace.current);
     }
   }
 
@@ -117,10 +109,7 @@ class AuthNotifier extends _$AuthNotifier {
 
       state = const AsyncData(null);
     } catch (e) {
-      state = AsyncError(
-        Exception('로그아웃 처리 중 오류 발생: $e'),
-        StackTrace.current,
-      );
+      state = AsyncError(Exception('로그아웃 처리 중 오류 발생: $e'), StackTrace.current);
     }
   }
 }
@@ -281,11 +270,7 @@ Future<AuthenticatedUserState> authenticatedUserState(Ref ref) async {
       );
     }
 
-    return AuthenticatedUserState.withRole(
-      firebaseUser,
-      backendUser,
-      userRole,
-    );
+    return AuthenticatedUserState.withRole(firebaseUser, backendUser, userRole);
   } catch (e) {
     // On any error, treat as not authenticated
     return const AuthenticatedUserState.notAuthenticated();

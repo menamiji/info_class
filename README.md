@@ -92,30 +92,35 @@ docs/                        # 프로젝트 문서 (예정)
 [Flutter 앱] → [JWT로 API 호출] → [FastAPI 백엔드] → [NAS 파일 + DB]
 ```
 
-## 📊 개발 진행 상황 (2025-09-18 업데이트)
+## 📊 개발 진행 상황 (2025-01-09 업데이트)
 
 ### ✅ 완료된 작업
 - **인프라**: 서버, 네트워킹, 파일 저장소 설정 ✅
 - **프론트엔드 인증**: Firebase Auth, Riverpod 상태관리, 로그인/로그아웃 완료 ✅
 - **백엔드 인증 시스템**: FastAPI + Firebase + JWT 완전 구현 ✅
-- **역할 기반 접근 제어**: 이메일 기반 admin/student 자동 구분 ✅
+- **JWT 토큰 교환**: Firebase → Backend JWT 연동 완료 ✅
+- **역할 기반 UI**: admin/student/guest 화면 라우팅 완전 구현 ✅
+- **권한 제어**: 이메일 기반 admin/student 자동 구분 및 UI 분기 ✅
 - **API 설계**: 토큰 교환, 사용자 정보, 헬스체크 엔드포인트 ✅
 - **보안 시스템**: CORS, 에러 핸들링, 입력 검증 완료 ✅
 
-### 🎯 **현재 상태: 40% 완료** (2025-09-19 업데이트)
-- **프론트엔드**: 30% (Riverpod HomePage 마이그레이션 완료)
+### 🎯 **현재 상태: 85% 완료** (2025-01-09 업데이트)
+- **프론트엔드**: 85% ✅ (Role-based UI 라우팅 완료, Mock 데이터 UI)
 - **백엔드**: 100% ✅ (완전한 FastAPI 인증 시스템 구현 완료)
 - **인프라**: 100% ✅
 - **데이터베이스**: 100% ✅
 
 ### 🔄 **다음 우선순위 작업**
-1. **Flutter-Backend JWT 연동**: Firebase Token → Backend JWT 교환 구현 (우선순위 1)
-2. **역할 기반 UI 라우팅**: admin/student 화면 분기 구현 (우선순위 2)
-3. **파일 관리 API**: 업로드/다운로드 엔드포인트 추가 (우선순위 3)
+1. **관리자/학생 화면 UI 개선**: 현재 Mock 데이터를 실제 기능으로 교체 (우선순위 1)
+2. **실제 API 연동**: 파일 업로드/다운로드, 과목 관리 API 구현 (우선순위 2)
+3. **프로덕션 배포 준비**: 성능 최적화, 보안 강화 (우선순위 3)
 
-### 📋 **상세 작업 로드맵**
-- 전체 계획: `claudedocs/next_tasks_roadmap.md` 참조
-- 완료 내역: `claudedocs/work_completion_summary.md` 참조
+### 🎉 **최근 완료된 주요 구현 (2025-01-09)**
+- **AuthenticatedUserState 모델**: Clean async state management 패턴
+- **AppLayout 공통 컴포넌트**: Material Design 3 기반 일관된 UI
+- **AdminScreen & StudentScreen**: 역할별 대시보드 및 기능 화면
+- **API 응답 파싱 개선**: UserInfoResponse 모델로 올바른 권한 처리
+- **관리자 계정 설정**: menamiji@pocheonil.hs.kr 관리자 권한 검증 완료
 
 ## 🔗 주요 URL
 
@@ -268,6 +273,6 @@ cd backend && source venv/bin/activate && uvicorn main:app --reload --host 0.0.0
 포천일고등학교 교육용 시스템 - 내부 사용 목적
 
 ---
-**Version**: 1.2 (Backend-Complete + Documentation-Updated)
-**Last Updated**: 2025-09-19
-**Status**: 🎯 40% Complete - Flutter-Backend JWT 연동 구현 준비 완료
+**Version**: 2.0 (Role-based-UI-Complete)
+**Last Updated**: 2025-01-09
+**Status**: 🎯 85% Complete - 역할 기반 UI 라우팅 완료, 파일 관리 API 개발 단계
