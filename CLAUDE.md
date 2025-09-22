@@ -8,15 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Tech Stack**: Flutter Web + Firebase Auth + Riverpod + FastAPI + NAS Storage
 
-### Implementation Status
+### Implementation Status (2025-09-19 업데이트)
 - ✅ **Infrastructure**: Complete (server, networking, file storage)
-- ✅ **Authentication Cleanup**: Complete (Google Sign-In optimized, dependencies updated, tests fixed)
-- 🔄 **Frontend**: Ready for development - Flutter project with auth foundation
-- ❌ **Backend**: FastAPI with JWT validation and file operations
-- ⚠️ **Database**: Choose between Supabase PostgreSQL or custom setup
+- ✅ **Frontend Authentication**: Complete (Riverpod + Firebase Auth, HomePage 마이그레이션 완료)
+- ✅ **Backend Authentication**: Complete (FastAPI + Firebase + JWT 완전 구현 - 19개 파일)
+- 🔄 **JWT Integration**: Next phase - Flutter에서 Backend JWT 토큰 교환 구현 (우선순위 1)
+- 🔄 **Role-based UI**: admin/student 화면 분기 구현 (우선순위 2)
+- ✅ **Documentation**: Complete (작업 완료 내역 및 향후 로드맵 문서화)
 
 ### Current Priority
-**Phase 1**: Authentication implementation (foundation ready, build login screens and state management)
+**Phase 3**: Flutter-Backend JWT 연동 → 역할 기반 UI → 파일 관리 API
+- 상세 계획: `claudedocs/next_tasks_roadmap.md` 참조
+- 진행률: 40% → 목표 100%
 
 ## Quick Start
 
@@ -165,12 +168,11 @@ lib/
 ```
 
 ### Development Phases
-**Phase 1**: Authentication Foundation ✅ Cleanup Complete
-- ✅ Firebase Auth setup and Google Sign-In optimization
-- ✅ Dependencies and test infrastructure ready
-- 🔄 Login/logout screens (next: implementation)
-- 🔄 Role-based routing (next: implementation)
-- 🔄 Token management (next: implementation)
+**Phase 1**: Authentication Foundation
+- Firebase Auth setup
+- Login/logout screens
+- Role-based routing
+- Token management
 
 **Phase 2**: File Management
 - File upload/download
@@ -404,21 +406,7 @@ curl https://info.pocheonil.hs.kr/info_class/api/healthz
 - **[API 문서](docs/API.md)**: FastAPI 백엔드 API 명세서 (예정)
 - **[배포 가이드](docs/DEPLOYMENT.md)**: 프로덕션 배포 절차 (예정)
 
-## Cleanup & Optimization Completed
-
-### Recent Changes (2025-01-09)
-- ✅ **Authentication Service**: Optimized signOut method for better performance
-- ✅ **Dependencies**: Updated file_picker to ^8.1.2, resolved DEBUG console warnings
-- ✅ **Test Infrastructure**: Replaced obsolete counter test with basic app initialization test
-- ✅ **Backend Integration**: Added Riverpod dependencies for state management
-- ✅ **Code Quality**: All flutter analyze and flutter test validations passing
-
-### Known Working Solutions
-- **Web Google Sign-In**: Session cleanup code `await _googleSignIn.signOut()` is essential for web compatibility
-- **file_picker Plugin**: Version 8.1.2+ resolves all DEBUG console warning spam
-- **Test Setup**: Basic Material app test ensures compilation and import correctness
-
 ---
-**Document Version**: 3.2 (Cleanup-Complete)
+**Document Version**: 3.1 (Authentication-Complete)
 **Last Updated**: 2025-01-09
-**Next Review**: After Phase 1 Authentication implementation
+**Next Review**: After Phase 2 (File Management) completion

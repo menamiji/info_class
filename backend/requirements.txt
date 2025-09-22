@@ -1,0 +1,27 @@
+# FastAPI Backend for Firebase JWT Integration
+fastapi>=0.115.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# Firebase Admin SDK for token validation
+firebase-admin>=6.3.0
+
+# JWT handling
+PyJWT>=2.8.0
+cryptography>=41.0.0
+
+# Password hashing (for future use)
+passlib[bcrypt]>=1.7.4
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# HTTP client for external API calls
+httpx>=0.25.0
+
+# CORS middleware
+fastapi-cors>=0.0.6
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
